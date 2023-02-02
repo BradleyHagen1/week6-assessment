@@ -3,13 +3,28 @@ const cors = require('cors')
 const app = express()
 const {bots, playerRecord} = require('./data')
 const {shuffleArray} = require('./utils')
+require('dotenv').config()
 
 app.use(express.json())
 app.use(cors())
+app.use(express.static(`${__dirname}/public`))
 
+const {port, ROLLBAR_TOKEN} = process.env
+
+// include and initialize the rollbar library with your access token
+let Rollbar = require('rollbar')
+let rollbar = new Rollbar({
+  accessToken: ROLLBAR_TOKEN,
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+})
+
+// record a generic message and send it to Rollbar
+rollbar.log('Hello world!')
 
 
 app.get('/api/robots', (req, res) => {
+    rollbar.info('User clicked see all bots')
     try {
         res.status(200).send(botsArr)
     } catch (error) {
@@ -19,6 +34,7 @@ app.get('/api/robots', (req, res) => {
 })
 
 app.get('/api/robots/five', (req, res) => {
+    rollbar.info('User drew 5 cards')
     try {
         let shuffled = shuffleArray(bots)
         let choices = shuffled.slice(0, 5)
@@ -31,6 +47,7 @@ app.get('/api/robots/five', (req, res) => {
 })
 
 app.post('/api/duel', (req, res) => {
+    rollbar('battle')
     try {
         // getting the duos from the front end
         let {compDuo, playerDuo} = req.body
@@ -62,6 +79,7 @@ app.post('/api/duel', (req, res) => {
 })
 
 app.get('/api/player', (req, res) => {
+    rollbar.info('stats')
     try {
         res.status(200).send(playerRecord)
     } catch (error) {
@@ -70,6 +88,8 @@ app.get('/api/player', (req, res) => {
     }
 })
 
-app.listen(4000, () => {
-  console.log(`Listening on 4000`)
+
+
+app.listen(port, () => {
+  console.log(`Listening on ${port}`)
 })

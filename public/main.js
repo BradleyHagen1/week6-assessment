@@ -116,7 +116,7 @@ const putBotBack = (id) => {
         yourDuoHeader.classList.add('hide')
     }
 }
-
+// remove http://localhost:4000 before deployment, add pm2 to aws and update trello link 
 const drawFive = () => {
     axios.get('http://localhost:4000/api/robots/five')
         .then(res => {
